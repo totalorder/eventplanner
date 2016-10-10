@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% block body %}
+Planning requests:
+{% for planning_request in planning_requests %}
+    <form action="{% url 'cso_approve' %}" method="POST">
+        {% for attr, value in planning_request.dict %}
+            <div>{{ attr }}: {{ value }}</div>
+        {% endfor %}
+        <input type="hidden" name="planning_request_id" value="{{ planning_request.id }}">
+        {% if planning_request.state == "new" %}
+            <input type="submit" value="Send to SCSO">
+        {% else %}
+            Sent to SCSO
+        {% endif %}
+    </form>
+
+<hr />
+{% endfor %}
+
+New planning request
+<div class="planning-form">
+    <form action="{% url 'planning_request' %}" method="POST">
+        {{ form.as_p }}
+        <input type="submit">
+    </form>
+</div>
+{% endblock %}
