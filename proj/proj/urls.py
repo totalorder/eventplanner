@@ -19,6 +19,8 @@ from app import views
 
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
+    url(r'^planning-request/cso_approve', views.cso_approve, name='cso_approve'),
+    url(r'^planning-request/', views.planning_request, name='planning_request'),
     url(r'^login/', views.login, name='login'),
     url(r'^logout/', views.logout, name='logout'),
     url(r'^$', views.index, name='index'),
