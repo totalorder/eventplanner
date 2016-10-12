@@ -7,10 +7,10 @@ Planning requests:
             <div>{{ attr }}: {{ value }}</div>
         {% endfor %}
         <input type="hidden" name="planning_request_id" value="{{ planning_request.id }}">
-        {% if planning_request.state == "new" %}
+        {% if planning_request.state == "new" and "cso" in groups %}
             <input type="submit" value="Send to SCSO">
         {% else %}
-            Sent to SCSO
+            state: {{ planning_request.state }}
         {% endif %}
     </form>
 

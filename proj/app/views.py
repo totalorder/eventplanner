@@ -24,7 +24,7 @@ def logout(request):
 
 
 def planning_request(request):
-    if not in_group(request.user, "cso"):
+    if not(in_group(request.user, "cso") or in_group(request.user, "scso")):
         return HttpResponse("You are not authorized to access this page", status=401)
     planning_request_form = models.PlanningRequestForm(request.POST)
 
@@ -32,9 +32,15 @@ def planning_request(request):
         if planning_request_form.is_valid():
             planning_request_form.save()
 
+    planning_requests = models.PlanningRequest.objects.all()
+    if "state" in request.GET:
+        planning_requests = planning_requests.filter(
+            state=request.GET["state"])
+
     return render(request, "planning_request.html", {
         "form": planning_request_form,
-        "planning_requests": models_to_dicts(models.PlanningRequest.objects.all())
+        "planning_requests": models_to_dicts(planning_requests),
+        "groups": [group.name for group in request.user.groups.all()]
     })
 
 
