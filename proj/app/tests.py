@@ -1,3 +1,4 @@
+from copy import copy
 from datetime import datetime, timedelta
 from django.contrib.auth.models import User, Group
 from django.test import TestCase
@@ -16,6 +17,20 @@ planning_request_data = dict(
     from_date=datetime.now(),
     to_date=datetime.now() + timedelta(days=3),
 )
+
+planning_request_form_data = {
+    "client_name": "Client",
+    "event_type": "fiesta",
+    "from_date": "2016-10-12",
+    "to_date": "2016-10-15",
+    "expected_no_attending": 40000,
+    "decoration": "",
+    "parties": "",
+    "drinks": "",
+    "food": "",
+    "media": "",
+    "expected_budget": 4000000
+}
 
 class TestView(TestCase):
     def setUp(self):
@@ -61,18 +76,20 @@ class TestView(TestCase):
 
     def test_create_planning_request(self):
         self.client.login(username='cso', password='eventplanner')
-        response = self.client.post('/planning-request/', {
-            "client_name": "Client",
-            "event_type": "fiesta",
-            "from_date": "2016-10-12",
-            "to_date": "2016-10-15",
-            "expected_no_attending": 40000,
-            "decoration": "",
-            "parties": "",
-            "drinks": "",
-            "food": "",
-            "media": "",
-            "expected_budget": 4000000
-        })
+        response = self.client.post('/planning-request/', planning_request_form_data)
         self.assertEqual(response.status_code, 200)
         self.assertEqual(models.PlanningRequest.objects.all().count(), 1)
+
+    def test_edit_planning_request(self):
+        self.client.login(username='scso', password='eventplanner')
+
+        planning_request = models.PlanningRequest.objects.all().first()
+        self.assertEquals(planning_request.client_name, "client_name")
+
+        planning_request_form_data_copy = copy(planning_request_form_data)
+        planning_request_form_data_copy["client_name"] = "korv"
+        response = self.client.post('/planning-request/edit/%s' % planning_request.id,
+                                    planning_request_form_data_copy)
+        self.assertEqual(response.status_code, 200)
+        planning_request = models.PlanningRequest.objects.get(pk=planning_request.id)
+        self.assertEquals(planning_request.client_name, "korv")

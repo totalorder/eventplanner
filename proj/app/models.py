@@ -4,7 +4,12 @@ from django.forms.extras import SelectDateWidget
 from django.db import models
 from django.forms import ModelForm, fields
 
-
+state_choices = (
+    ("new", "New"),
+    ("cso_approved", "CSO Approved"),
+    ("scso_approved", "SCSO Approved"),
+    ("fm_commented", "FM Commented"),
+)
 class PlanningRequest(models.Model):
     client_name = models.CharField(max_length=128)
     event_type = models.CharField(max_length=128)
@@ -17,11 +22,7 @@ class PlanningRequest(models.Model):
     food = models.BooleanField()
     media = models.BooleanField()
     expected_budget = models.IntegerField()
-    state = models.CharField(max_length=15, choices=(
-        ("new", "New"),
-        ("cso_approved", "CSO Approved"),
-        ("fm_commented", "FM Commented"),
-    ), default="new")
+    state = models.CharField(max_length=15, choices=state_choices, default="new")
 
 
 class PlanningRequestForm(ModelForm):

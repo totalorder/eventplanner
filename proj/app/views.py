@@ -23,6 +23,29 @@ def logout(request):
     return redirect(reverse("login"))
 
 
+def edit_planning_request(request, request_id):
+    if not(in_group(request.user, "scso")):
+        return HttpResponse("You are not authorized to access this page", status=401)
+
+    planning_request = models.PlanningRequest.objects.get(pk=request_id)
+    saved = False
+
+    if request.method == "POST":
+        planning_request_form = models.PlanningRequestForm(
+            request.POST, instance=planning_request)
+        if planning_request_form.is_valid():
+            planning_request_form.save()
+            saved = True
+
+
+    planning_request_form = models.PlanningRequestForm(instance=planning_request)
+    return render(request, "planning_request_edit.html", {
+        "form": planning_request_form,
+        "request_id": request_id,
+        "saved": saved
+    })
+
+
 def planning_request(request):
     if not(in_group(request.user, "cso") or in_group(request.user, "scso")):
         return HttpResponse("You are not authorized to access this page", status=401)
@@ -40,7 +63,9 @@ def planning_request(request):
     return render(request, "planning_request.html", {
         "form": planning_request_form,
         "planning_requests": models_to_dicts(planning_requests),
-        "groups": [group.name for group in request.user.groups.all()]
+        "groups": [group.name for group in request.user.groups.all()],
+        "states": [choice[0] for choice in models.state_choices],
+        "current_state": request.GET.get("state")
     })
 
 
@@ -62,9 +87,11 @@ def index(request):
     return render(request, "index.html", {"groups": request.user })
 
 
-def cso_approve(request):
+def approve(request):
     planning_request = models.PlanningRequest.objects.get(
         pk=request.POST.get("planning_request_id"))
-    planning_request.state = "cso_approved"
+
+    new_state = request.POST["new_state"]
+    planning_request.state = new_state
     planning_request.save()
     return redirect("planning_request")

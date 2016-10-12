@@ -1,18 +1,30 @@
 {% extends "base.html" %}
 {% block body %}
+<form action="{% url 'planning_request' %}" method="GET">
+    <select name="state">
+        {% for state in states %}
+            <option {% if state == current_state %} selected{% endif %}>{{ state }}</option>
+        {% endfor %}
+    </select>
+    <input type="submit" value="Filter">
+</form>
 Planning requests:
 {% for planning_request in planning_requests %}
-    <form action="{% url 'cso_approve' %}" method="POST">
+    <form action="{% url 'approve' %}" method="POST">
         {% for attr, value in planning_request.dict %}
             <div>{{ attr }}: {{ value }}</div>
         {% endfor %}
         <input type="hidden" name="planning_request_id" value="{{ planning_request.id }}">
+        state: {{ planning_request.state }}
         {% if planning_request.state == "new" and "cso" in groups %}
             <input type="submit" value="Send to SCSO">
-        {% else %}
-            state: {{ planning_request.state }}
+            <input type="hidden" name="new_state" value="cso_approved">
+        {% elif planning_request.state == "new" or planning_request.state == "cso_approved" and "scso" in groups %}
+            <input type="submit" value="Send to Finance">
+            <input type="hidden" name="new_state" value="scso_approved">
         {% endif %}
     </form>
+    <a href="{% url 'planning_request_edit' planning_request.id %}">Edit</a>
 
 <hr />
 {% endfor %}

@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+{% block body %}
+<a href="{% url 'planning_request' %}">Planning requests</a>
+{% if saved %}The request has been saved {% endif %}
+<div class="planning-form">
+    <form action="{% url 'planning_request_edit' request_id %}" method="POST">
+        {{ form.as_p }}
+        <input type="submit">
+    </form>
+</div>
+{% endblock %}
