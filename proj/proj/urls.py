@@ -19,6 +19,7 @@ from app import views
 
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
+    url(r'^planning-request/write-feedback/(?P<request_id>[0-9]+)', views.write_planning_request_feedback, name='planning_request_write_feedback'),
     url(r'^planning-request/edit/(?P<request_id>[0-9]+)', views.edit_planning_request, name='planning_request_edit'),
     url(r'^planning-request/approve', views.approve, name='approve'),
     url(r'^planning-request/', views.planning_request, name='planning_request'),

@@ -12,19 +12,25 @@ Planning requests:
 {% for planning_request in planning_requests %}
     <form action="{% url 'approve' %}" method="POST">
         {% for attr, value in planning_request.dict %}
-            <div>{{ attr }}: {{ value }}</div>
+            <div>{{ attr }}: {{ value|default_if_none:"-" }}</div>
         {% endfor %}
         <input type="hidden" name="planning_request_id" value="{{ planning_request.id }}">
         state: {{ planning_request.state }}
         {% if planning_request.state == "new" and "cso" in groups %}
             <input type="submit" value="Send to SCSO">
             <input type="hidden" name="new_state" value="cso_approved">
-        {% elif planning_request.state == "new" or planning_request.state == "cso_approved" and "scso" in groups %}
+        {% elif planning_request.state == "new" and "scso" in groups or planning_request.state == "cso_approved" and "scso" in groups %}
             <input type="submit" value="Send to Finance">
             <input type="hidden" name="new_state" value="scso_approved">
+        {% elif planning_request.state == "scso_approved" and "fm" in groups %}
+            <div>
+                <a href="{% url 'planning_request_write_feedback' planning_request.id %}">Write feedback</a>
+            </div>
         {% endif %}
     </form>
-    <a href="{% url 'planning_request_edit' planning_request.id %}">Edit</a>
+    {% if "scso" in groups %}
+        <a href="{% url 'planning_request_edit' planning_request.id %}">Edit</a>
+    {% endif %}
 
 <hr />
 {% endfor %}

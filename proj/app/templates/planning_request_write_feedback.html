@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block body %}
+<a href="{% url 'planning_request' %}">Planning requests</a>
+<div>
+    {% if saved %}The feedback has been updated{% endif %}
+</div>
+{% for attr, value in planning_request.dict %}
+    <div>{{ attr }}: {{ value|default_if_none:"-" }}</div>
+{% endfor %}
+<hr/>
+<div class="planning-form">
+    <form action="{% url 'planning_request_write_feedback' request_id %}" method="POST">
+        <label for="feedback">
+            Budget feedback:
+        </label>
+        <textarea id="feedback" name="feedback">{{ planning_request.budget_feedback|default:"" }}</textarea>
+        <input type="submit" value="Save feedback">
+    </form>
+</div>
+{% endblock %}

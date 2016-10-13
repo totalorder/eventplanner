@@ -48,6 +48,13 @@ class TestView(TestCase):
         scso_user.groups.add(scso)
         scso_user.save()
 
+        fm_user = User.objects.create_user('fm', 'fm@fm.com', 'eventplanner')
+        fm = Group.objects.create()
+        fm.name = 'fm'
+        fm.save()
+        fm_user.groups.add(fm)
+        fm_user.save()
+
 
         models.PlanningRequest.objects.create(**planning_request_data)
         models.PlanningRequest.objects.create(
@@ -78,7 +85,7 @@ class TestView(TestCase):
         self.client.login(username='cso', password='eventplanner')
         response = self.client.post('/planning-request/', planning_request_form_data)
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(models.PlanningRequest.objects.all().count(), 1)
+        self.assertEqual(models.PlanningRequest.objects.all().count(), 3)
 
     def test_edit_planning_request(self):
         self.client.login(username='scso', password='eventplanner')
@@ -93,3 +100,19 @@ class TestView(TestCase):
         self.assertEqual(response.status_code, 200)
         planning_request = models.PlanningRequest.objects.get(pk=planning_request.id)
         self.assertEquals(planning_request.client_name, "korv")
+
+    def test_write_planning_request_feedback(self):
+        self.client.login(username='fm', password='eventplanner')
+
+        planning_request = models.PlanningRequest.objects.all().first()
+        planning_request.state = "scso_approved"
+        planning_request.save()
+        self.assertEquals(planning_request.budget_feedback, None)
+
+        response = self.client.post('/planning-request/write-feedback/%s' % planning_request.id,
+                                    {"feedback": "Korv"})
+        self.assertEqual(response.status_code, 200)
+        planning_request = models.PlanningRequest.objects.get(pk=planning_request.id)
+        self.assertEquals(planning_request.budget_feedback, "Korv")
+        self.assertEquals(planning_request.state, "fm_commented")
+

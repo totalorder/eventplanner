@@ -23,12 +23,13 @@ class PlanningRequest(models.Model):
     media = models.BooleanField()
     expected_budget = models.IntegerField()
     state = models.CharField(max_length=15, choices=state_choices, default="new")
+    budget_feedback = models.TextField(null=True)
 
 
 class PlanningRequestForm(ModelForm):
     class Meta:
         model = PlanningRequest
-        exclude = ["state"]
+        exclude = ["state", "budget_feedback"]
 
     from_date = fields.DateField(widget=SelectDateWidget())
     to_date = fields.DateField(widget=SelectDateWidget())

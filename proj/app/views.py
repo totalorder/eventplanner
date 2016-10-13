@@ -46,8 +46,32 @@ def edit_planning_request(request, request_id):
     })
 
 
+def write_planning_request_feedback(request, request_id):
+    if not(in_group(request.user, "fm")):
+        return HttpResponse("You are not authorized to access this page", status=401)
+
+    planning_request = models.PlanningRequest.objects.get(pk=request_id)
+    if planning_request.state != "scso_approved":
+        return HttpResponse("State now allowed", status=400)
+    saved = False
+
+    if request.method == "POST":
+        if "feedback" in request.POST:
+            planning_request.budget_feedback = request.POST["feedback"]
+            planning_request.state = "fm_commented"
+            planning_request.save()
+            saved = True
+
+    planning_request = model_to_dict(planning_request)
+    return render(request, "planning_request_write_feedback.html", {
+        "planning_request": planning_request,
+        "request_id": request_id,
+        "saved": saved
+    })
+
+
 def planning_request(request):
-    if not(in_group(request.user, "cso") or in_group(request.user, "scso")):
+    if not(in_group(request.user, "cso") or in_group(request.user, "scso") or in_group(request.user, "fm")):
         return HttpResponse("You are not authorized to access this page", status=401)
     planning_request_form = models.PlanningRequestForm(request.POST)
 
