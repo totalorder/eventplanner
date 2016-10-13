@@ -9,6 +9,7 @@ state_choices = (
     ("cso_approved", "CSO Approved"),
     ("scso_approved", "SCSO Approved"),
     ("fm_commented", "FM Commented"),
+    ("adm_approved", "ADM Approved"),
 )
 class PlanningRequest(models.Model):
     client_name = models.CharField(max_length=128)

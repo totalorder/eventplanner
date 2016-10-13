@@ -55,6 +55,12 @@ class TestView(TestCase):
         fm_user.groups.add(fm)
         fm_user.save()
 
+        adm_user = User.objects.create_user('adm', 'adm@adm.com', 'eventplanner')
+        adm = Group.objects.create()
+        adm.name = 'adm'
+        adm.save()
+        adm_user.groups.add(adm)
+        adm_user.save()
 
         models.PlanningRequest.objects.create(**planning_request_data)
         models.PlanningRequest.objects.create(
@@ -116,3 +122,18 @@ class TestView(TestCase):
         self.assertEquals(planning_request.budget_feedback, "Korv")
         self.assertEquals(planning_request.state, "fm_commented")
 
+    def test_adm_approve_planning_request(self):
+        planning_request = models.PlanningRequest.objects.all().first()
+        planning_request.state = "fm_commented"
+        planning_request.save()
+
+        self.client.login(username='adm', password='eventplanner')
+
+        response = self.client.post('/planning-request/approve', {
+            "new_state": "adm_approved",
+            "planning_request_id": planning_request.id
+        })
+
+        planning_request = models.PlanningRequest.objects.all().first()
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(planning_request.state, "adm_approved")

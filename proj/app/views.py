@@ -24,10 +24,11 @@ def logout(request):
 
 
 def edit_planning_request(request, request_id):
-    if not(in_group(request.user, "scso")):
-        return HttpResponse("You are not authorized to access this page", status=401)
-
     planning_request = models.PlanningRequest.objects.get(pk=request_id)
+
+    if not(in_group(request.user, "scso") and planning_request.state in ("new", "cso_approved") or
+               in_group(request.user, "adm")):
+        return HttpResponse("You are not authorized to access this page", status=401)
     saved = False
 
     if request.method == "POST":
@@ -71,7 +72,10 @@ def write_planning_request_feedback(request, request_id):
 
 
 def planning_request(request):
-    if not(in_group(request.user, "cso") or in_group(request.user, "scso") or in_group(request.user, "fm")):
+    if not(in_group(request.user, "cso") or
+           in_group(request.user, "scso") or
+           in_group(request.user, "fm") or
+           in_group(request.user, "adm")):
         return HttpResponse("You are not authorized to access this page", status=401)
     planning_request_form = models.PlanningRequestForm(request.POST)
 

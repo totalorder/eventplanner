@@ -26,9 +26,12 @@ Planning requests:
             <div>
                 <a href="{% url 'planning_request_write_feedback' planning_request.id %}">Write feedback</a>
             </div>
+        {% elif planning_request.state == "fm_commented" and "adm" in groups %}
+            <input type="submit" value="Approve and send to Product manager">
+            <input type="hidden" name="new_state" value="adm_approved">
         {% endif %}
     </form>
-    {% if "scso" in groups %}
+    {% if "scso" in groups and planning_request.state == "new" or "scso" in groups and planning_request.state == "cso_approved" or "adm" in groups %}
         <a href="{% url 'planning_request_edit' planning_request.id %}">Edit</a>
     {% endif %}
 
