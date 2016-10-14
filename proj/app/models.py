@@ -91,3 +91,30 @@ class RecruitmentRequestForm(ModelForm):
     class Meta:
         model = RecruitmentRequest
         exclude = ["planning_request", "completed"]
+
+
+class FinancialRequest(models.Model):
+    planning_request = models.ForeignKey(PlanningRequest,
+                                         related_name='financial_requests')
+
+    required_amount = models.IntegerField()
+    reason = models.TextField()
+    state = models.CharField(
+        max_length=15, choices=(
+            ("new", "New"),
+            ("approved", "Approved"),
+            ("denied", "Denied")),
+        default="new")
+
+    requesting_department = models.CharField(choices=(
+        ("administration", "Administration"),
+        ("service", "Service"),
+        ("production", "Production"),
+        ("financial", "Financial"),
+    ), max_length=128)
+
+
+class FinancialRequestForm(ModelForm):
+    class Meta:
+        model = FinancialRequest
+        exclude = ["planning_request", "state"]

@@ -176,3 +176,29 @@ def create_recruitment_request(request, request_id):
         "planning_request": planning_request,
         "form": recruitment_request_form
     })
+
+
+def create_financial_request(request, request_id):
+    planning_request = models.PlanningRequest.objects.get(
+        pk=request_id)
+
+    if not(in_group(request.user, "psm")):
+        return HttpResponse("You are not authorized to access this page", status=401)
+
+    financial_request_form = models.FinancialRequestForm()
+    if request.method == "POST":
+        financial_request_form = models.FinancialRequestForm(request.POST)
+        if financial_request_form.is_valid():
+            financial_request = models.FinancialRequest(planning_request=planning_request,
+                                                            **financial_request_form.cleaned_data)
+            financial_request.save()
+            financial_request_form = models.FinancialRequestForm()
+
+    planning_request = models.PlanningRequest.objects.get(
+        pk=request_id)
+    planning_request = model_to_dict(planning_request)
+    planning_request.financial_requests_dicts = models_to_dicts(planning_request.financial_requests.all())
+    return render(request, "financial_requests.html", {
+        "planning_request": planning_request,
+        "form": financial_request_form
+    })

@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block body %}
+<a href="{% url 'planning_request' %}">Planning requests</a>
+{% if saved %}The financial request has been saved {% endif %}
+{% for attr, value in planning_request.dict %}
+<div>{{ attr }}: {{ value|default_if_none:"-" }}</div>
+{% endfor %}
+<hr/>
+{% for financial_request in planning_request.financial_requests_dicts %}
+{% for attr, value in financial_request.dict %}
+<div>{{ attr }}: {{ value|default_if_none:"-" }}</div>
+{% endfor %}
+<hr/>
+{% endfor %}
+<div class="financial_request-form">
+    <form action="{% url 'create_financial_request' planning_request.id %}" method="POST">
+        {{ form.as_p }}
+        <input type="submit">
+    </form>
+</div>
+{% endblock %}

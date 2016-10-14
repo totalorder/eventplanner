@@ -178,3 +178,19 @@ class TestView(TestCase):
         self.assertEqual(response.status_code, 200)
         planning_request = models.PlanningRequest.objects.all().first()
         self.assertEqual(planning_request.recruitment_requests.all().count(), 1)
+
+    def test_create_financial_request(self):
+        planning_request = models.PlanningRequest.objects.all().first()
+        self.assertEqual(planning_request.financial_requests.all().count(), 0)
+
+        self.client.login(username='psm', password='eventplanner')
+        response = self.client.post(
+            '/financial-request/create/%s' % planning_request.id, {
+                "required_amount": 30000,
+                "reason": "Give me all your money",
+                "requesting_department": "service",
+            })
+
+        self.assertEqual(response.status_code, 200)
+        planning_request = models.PlanningRequest.objects.all().first()
+        self.assertEqual(planning_request.financial_requests.all().count(), 1)
