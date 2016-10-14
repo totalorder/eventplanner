@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 {% block body %}
-<a href="{% url 'planning_request' %}">Planning requests</a>
+
 {% if saved %}The task has been saved {% endif %}
 {% for attr, value in planning_request.dict %}
 <div>{{ attr }}: {{ value|default_if_none:"-" }}</div>

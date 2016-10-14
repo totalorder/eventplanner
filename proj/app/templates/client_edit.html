@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+{% block body %}
+
+{% if saved %}The client has been saved {% endif %}
+<div class="client-form">
+    <form action="{% url 'client_edit' client_id %}" method="POST">
+        {{ form.as_p }}
+        <input type="submit">
+    </form>
+</div>
+{% endblock %}

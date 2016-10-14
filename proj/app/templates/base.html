@@ -7,7 +7,11 @@
     <link rel="stylesheet" href="{% static 'style.css' %}">
 </head>
 <body>
+<a href="{% url 'planning_request' %}">Planning requests</a>
+<a href="{% url 'client' %}">Clients</a>
+<div>
 {% block body %}{% endblock %}
+</div>
 Logged in as {{ user }} <a href="{% url 'logout' %}">Logout</a>
 </body>
 </html>

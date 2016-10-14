@@ -6,7 +6,6 @@ from app import models
 
 planning_request_data = dict(
     expected_no_attending=1,
-    client_name="client_name",
     event_type="event_type",
     decoration=False,
     parties=False,
@@ -111,15 +110,15 @@ class TestView(TestCase):
         self.client.login(username='scso', password='eventplanner')
 
         planning_request = models.PlanningRequest.objects.all().first()
-        self.assertEquals(planning_request.client_name, "client_name")
+        self.assertEquals(planning_request.event_type, "event_type")
 
         planning_request_form_data_copy = copy(planning_request_form_data)
-        planning_request_form_data_copy["client_name"] = "korv"
+        planning_request_form_data_copy["event_type"] = "korv"
         response = self.client.post('/planning-request/edit/%s' % planning_request.id,
                                     planning_request_form_data_copy)
         self.assertEqual(response.status_code, 200)
         planning_request = models.PlanningRequest.objects.get(pk=planning_request.id)
-        self.assertEquals(planning_request.client_name, "korv")
+        self.assertEquals(planning_request.event_type, "korv")
 
     def test_write_planning_request_feedback(self):
         self.client.login(username='fm', password='eventplanner')
@@ -222,3 +221,12 @@ class TestView(TestCase):
         recruitment_request = planning_request.recruitment_requests.all().first()
 
         self.assertEqual(recruitment_request.state, "hired")
+
+    def test_create_client(self):
+        self.client.login(username='scso', password='eventplanner')
+        response = self.client.post('/client/', {
+            "client_name": "Client name",
+            "contact_information": "Contact information"
+        })
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(models.Client.objects.all().count(), 1)

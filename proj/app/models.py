@@ -1,4 +1,5 @@
 from __future__ import unicode_literals
+from django import forms
 
 from django.forms.extras import SelectDateWidget
 from django.db import models
@@ -13,8 +14,22 @@ state_choices = (
 )
 
 
-class PlanningRequest(models.Model):
+class Client(models.Model):
     client_name = models.CharField(max_length=128)
+    contact_information = models.TextField()
+
+    def __str__(self):
+        return self.client_name
+
+
+class ClientForm(ModelForm):
+    class Meta:
+        model = Client
+        exclude = []
+
+
+class PlanningRequest(models.Model):
+    client = models.ForeignKey(Client, related_name='planning_requests', null=True)
     event_type = models.CharField(max_length=128)
     from_date = models.DateField()
     to_date = models.DateField()
@@ -34,6 +49,7 @@ class PlanningRequestForm(ModelForm):
         model = PlanningRequest
         exclude = ["state", "budget_feedback"]
 
+    client = forms.ModelChoiceField(queryset=Client.objects.all(), required=False)
     from_date = fields.DateField(widget=SelectDateWidget())
     to_date = fields.DateField(widget=SelectDateWidget())
 

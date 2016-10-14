@@ -79,9 +79,10 @@ def planning_request(request):
            in_group(request.user, "hrm") or
            in_group(request.user, "psm")):
         return HttpResponse("You are not authorized to access this page", status=401)
-    planning_request_form = models.PlanningRequestForm(request.POST)
+    planning_request_form = models.PlanningRequestForm()
 
     if request.method == "POST":
+        planning_request_form = models.PlanningRequestForm(request.POST)
         if planning_request_form.is_valid():
             planning_request_form.save()
 
@@ -122,6 +123,10 @@ def approve(request):
         pk=request.POST.get("planning_request_id"))
 
     new_state = request.POST["new_state"]
+    if new_state == "scso_approved":
+        if planning_request.client is None:
+            return HttpResponse("Client has to be set before sending to finance")
+
     planning_request.state = new_state
     planning_request.save()
     return redirect("planning_request")
@@ -225,4 +230,47 @@ def manage_recruitment_request(request, request_id):
     planning_request.recruitment_requests_dicts = models_to_dicts(planning_request.recruitment_requests.all())
     return render(request, "manage_recruitment_requests.html", {
         "planning_request": planning_request
+    })
+
+
+def client(request):
+
+    client_form = models.ClientForm()
+    if request.method == "POST":
+        client_form = models.ClientForm(request.POST)
+        if not(in_group(request.user, "scso")):
+            return HttpResponse("You are not authorized to access this page", status=401)
+
+        if client_form.is_valid():
+                client_form.save()
+
+    clients = models.Client.objects.all()
+
+    return render(request, "client.html", {
+        "form": client_form,
+        "clients": models_to_dicts(clients),
+        "current_state": request.GET.get("state"),
+        "groups": [group.name for group in request.user.groups.all()],
+    })
+
+
+def client_edit(request, client_id):
+    client = models.Client.objects.get(pk=client_id)
+
+    if not(in_group(request.user, "scso")):
+        return HttpResponse("You are not authorized to access this page", status=401)
+    saved = False
+    
+    if request.method == "POST":
+        client_form = models.ClientForm(
+            request.POST, instance=client)
+        if client_form.is_valid():
+            client_form.save()
+            saved = True
+    
+    client_form = models.ClientForm(instance=client)
+    return render(request, "client_edit.html", {
+        "form": client_form,
+        "client_id": client_id,
+        "saved": saved
     })

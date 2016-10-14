@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block body %}
+Clients:
+{% for client in clients %}
+    {% for attr, value in client.dict %}
+    <div>{{ attr }}: {{ value|default_if_none:"-" }}</div>
+    {% endfor %}
+{% if "scso" in groups %}
+    <a href="{% url 'client_edit' client.id %}">Edit</a>
+{% endif %}
+
+<hr />
+{% endfor %}
+
+{% if "scso" in groups %}
+New client
+<div class="client-form">
+    <form action="{% url 'client' %}" method="POST">
+        {{ form.as_p }}
+        <input type="submit">
+    </form>
+</div>
+{% endif %}
+{% endblock %}
