@@ -2,9 +2,14 @@
 {% block body %}
 
 {% if saved %}The request has been saved {% endif %}
+
 <div class="planning-form">
     <form action="{% url 'planning_request_edit' request_id %}" method="POST">
-        {{ form.as_p }}
+        {% if "psm" in groups %}
+            {{ details_form.as_p }}
+        {% else %}
+            {{ form.as_p }}
+        {% endif %}
         <input type="submit">
     </form>
 </div>

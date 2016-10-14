@@ -38,6 +38,9 @@ Planning requests:
         <a href="{% url 'planning_request_edit' planning_request.id %}">Edit</a>
     {% endif %}
     {% if "psm" in groups and planning_request.state == "adm_approved" %}
+        <a href="{% url 'planning_request_edit' planning_request.id %}">Edit details</a>
+    {% endif %}
+    {% if "psm" in groups and planning_request.state == "adm_approved" %}
         <a href="{% url 'create_task' planning_request.id %}">Manage tasks</a>
         <a href="{% url 'create_recruitment_request' planning_request.id %}">Manage recruitment requests</a>
         <a href="{% url 'create_financial_request' planning_request.id %}">Manage financial requests</a>

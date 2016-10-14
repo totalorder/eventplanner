@@ -27,22 +27,43 @@ def edit_planning_request(request, request_id):
     planning_request = models.PlanningRequest.objects.get(pk=request_id)
 
     if not(in_group(request.user, "scso") and planning_request.state in ("new", "cso_approved") or
-               in_group(request.user, "adm")):
+           in_group(request.user, "adm") or
+           in_group(request.user, "psm") and planning_request.state == "adm_approved"):
         return HttpResponse("You are not authorized to access this page", status=401)
     saved = False
 
+    details_form = models.PlanningRequestDetailsForm(
+        data={
+            "decoration_descr": planning_request.decoration_descr,
+            "parties_descr": planning_request.parties_descr,
+            "drinks_descr": planning_request.drinks_descr,
+            "food_descr": planning_request.food_descr,
+            "media_descr": planning_request.media_descr,
+            "expected_budget": planning_request.expected_budget,
+        })
+
     if request.method == "POST":
-        planning_request_form = models.PlanningRequestForm(
-            request.POST, instance=planning_request)
-        if planning_request_form.is_valid():
-            planning_request_form.save()
-            saved = True
+        if in_group(request.user, "psm"):
+            details_form = models.PlanningRequestDetailsForm(request.POST)
+            if details_form.is_valid():
+                for key, value in details_form.cleaned_data.items():
+                    setattr(planning_request, key, value)
+                planning_request.save()
+                saved = True
+        else:
+            planning_request_form = models.PlanningRequestForm(
+                request.POST, instance=planning_request)
+            if planning_request_form.is_valid():
+                planning_request_form.save()
+                saved = True
 
 
     planning_request_form = models.PlanningRequestForm(instance=planning_request)
     return render(request, "planning_request_edit.html", {
         "form": planning_request_form,
+        "details_form": details_form,
         "request_id": request_id,
+        "groups": [group.name for group in request.user.groups.all()],
         "saved": saved
     })
 

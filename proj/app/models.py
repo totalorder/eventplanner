@@ -43,15 +43,34 @@ class PlanningRequest(models.Model):
     state = models.CharField(max_length=15, choices=state_choices, default="new")
     budget_feedback = models.TextField(null=True)
 
+    decoration_descr = models.TextField(null=True)
+    parties_descr = models.TextField(null=True)
+    drinks_descr = models.TextField(null=True)
+    food_descr = models.TextField(null=True)
+    media_descr = models.TextField(null=True)
 
 class PlanningRequestForm(ModelForm):
     class Meta:
         model = PlanningRequest
-        exclude = ["state", "budget_feedback"]
+        exclude = ["state", "budget_feedback",
+                   "decoration_descr",
+                   "parties_descr",
+                   "drinks_descr",
+                   "food_descr",
+                   "media_descr"]
 
     client = forms.ModelChoiceField(queryset=Client.objects.all(), required=False)
     from_date = fields.DateField(widget=SelectDateWidget())
     to_date = fields.DateField(widget=SelectDateWidget())
+
+
+class PlanningRequestDetailsForm(forms.Form):
+    decoration_descr = forms.fields.CharField(required=False)
+    parties_descr = forms.fields.CharField(required=False)
+    drinks_descr = forms.fields.CharField(required=False)
+    food_descr = forms.fields.CharField(required=False)
+    media_descr = forms.fields.CharField(required=False)
+    expected_budget = forms.fields.IntegerField()
 
 
 class Task(models.Model):

@@ -230,3 +230,22 @@ class TestView(TestCase):
         })
         self.assertEqual(response.status_code, 200)
         self.assertEqual(models.Client.objects.all().count(), 1)
+
+    def test_edit_planning_request_details(self):
+        self.client.login(username='psm', password='eventplanner')
+
+        planning_request = models.PlanningRequest.objects.all().first()
+        planning_request.state = "adm_approved"
+        planning_request.save()
+        self.assertEquals(planning_request.food_descr, None)
+
+        response = self.client.post('/planning-request/edit/%s' % planning_request.id,
+                                    {"food_descr": "korv",
+                                     "parties_descr": "",
+                                     "drinks_descr": "",
+                                     "media_descr": "",
+                                     "decoration_descr": "",
+                                     "expected_budget": 334})
+        self.assertEqual(response.status_code, 200)
+        planning_request = models.PlanningRequest.objects.get(pk=planning_request.id)
+        self.assertEquals(planning_request.food_descr, "korv")
