@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block body %}
+<a href="{% url 'planning_request' %}">Planning requests</a>
+{% if saved %}The recruitment request has been saved {% endif %}
+{% for attr, value in planning_request.dict %}
+<div>{{ attr }}: {{ value|default_if_none:"-" }}</div>
+{% endfor %}
+<hr/>
+{% for recruitment_request in planning_request.recruitment_requests_dicts %}
+    {% for attr, value in recruitment_request.dict %}
+    <div>{{ attr }}: {{ value|default_if_none:"-" }}</div>
+    {% endfor %}
+<hr/>
+{% endfor %}
+<div class="recruitment_request-form">
+    <form action="{% url 'create_recruitment_request' planning_request.id %}" method="POST">
+        {{ form.as_p }}
+        <input type="submit">
+    </form>
+</div>
+{% endblock %}

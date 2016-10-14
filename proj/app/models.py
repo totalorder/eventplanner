@@ -63,3 +63,31 @@ class TaskForm(ModelForm):
     class Meta:
         model = Task
         exclude = ["planning_request", "extra_needs"]
+
+
+class RecruitmentRequest(models.Model):
+    planning_request = models.ForeignKey(PlanningRequest,
+                                         related_name='recruitment_requests')
+
+    completed = models.BooleanField(default=False)
+    years_of_experience = models.IntegerField()
+    job_title = models.CharField(max_length=512)
+    job_description = models.TextField()
+
+    contract_type = models.CharField(choices=(
+        ("full_time", "Full time"),
+        ("part_time", "Part time"),
+    ), max_length=128)
+
+    requesting_department = models.CharField(choices=(
+        ("administration", "Administration"),
+        ("service", "Service"),
+        ("production", "Production"),
+        ("financial", "Financial"),
+    ), max_length=128)
+
+
+class RecruitmentRequestForm(ModelForm):
+    class Meta:
+        model = RecruitmentRequest
+        exclude = ["planning_request", "completed"]

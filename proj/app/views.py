@@ -135,14 +135,12 @@ def create_task(request, request_id):
 
     task_form = models.TaskForm()
     if request.method == "POST":
-        task_form = models.TaskForm(request.POST,
-                                    initial={"planning_request_id": request_id})
+        task_form = models.TaskForm(request.POST)
         if task_form.is_valid():
             task = models.Task(planning_request=planning_request,
                                **task_form.cleaned_data)
             task.save()
             task_form = models.TaskForm()
-            # task_form.save()
 
     planning_request = models.PlanningRequest.objects.get(
         pk=request_id)
@@ -151,4 +149,30 @@ def create_task(request, request_id):
     return render(request, "tasks.html", {
         "planning_request": planning_request,
         "form": task_form
+    })
+
+
+def create_recruitment_request(request, request_id):
+    planning_request = models.PlanningRequest.objects.get(
+        pk=request_id)
+
+    if not(in_group(request.user, "psm")):
+        return HttpResponse("You are not authorized to access this page", status=401)
+
+    recruitment_request_form = models.RecruitmentRequestForm()
+    if request.method == "POST":
+        recruitment_request_form = models.RecruitmentRequestForm(request.POST)
+        if recruitment_request_form.is_valid():
+            recruitment_request = models.RecruitmentRequest(planning_request=planning_request,
+                               **recruitment_request_form.cleaned_data)
+            recruitment_request.save()
+            recruitment_request_form = models.RecruitmentRequestForm()
+
+    planning_request = models.PlanningRequest.objects.get(
+        pk=request_id)
+    planning_request = model_to_dict(planning_request)
+    planning_request.recruitment_requests_dicts = models_to_dicts(planning_request.recruitment_requests.all())
+    return render(request, "recruitment_requests.html", {
+        "planning_request": planning_request,
+        "form": recruitment_request_form
     })

@@ -15,6 +15,7 @@ Planning requests:
             <div>{{ attr }}: {{ value|default_if_none:"-" }}</div>
         {% endfor %}
         <div>tasks: {{ planning_request.tasks.all.count }}</div>
+        <div>recruitment reqeusts: {{ planning_request.recruitment_requests.all.count }}</div>
         <input type="hidden" name="planning_request_id" value="{{ planning_request.id }}">
         state: {{ planning_request.state }}
         {% if planning_request.state == "new" and "cso" in groups %}
@@ -37,6 +38,7 @@ Planning requests:
     {% endif %}
     {% if "psm" in groups and planning_request.state == "adm_approved" %}
         <a href="{% url 'create_task' planning_request.id %}">Manage tasks</a>
+        <a href="{% url 'create_recruitment_request' planning_request.id %}">Manage recruitment requests</a>
     {% endif %}
 
 <hr />

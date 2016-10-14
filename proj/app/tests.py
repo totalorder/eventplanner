@@ -160,3 +160,21 @@ class TestView(TestCase):
         self.assertEqual(response.status_code, 200)
         planning_request = models.PlanningRequest.objects.all().first()
         self.assertEqual(planning_request.tasks.all().count(), 1)
+
+    def test_create_recruitment_request(self):
+        planning_request = models.PlanningRequest.objects.all().first()
+        self.assertEqual(planning_request.recruitment_requests.all().count(), 0)
+
+        self.client.login(username='psm', password='eventplanner')
+        response = self.client.post(
+            '/recruitment-request/create/%s' % planning_request.id, {
+                "years_of_experience": 3,
+                "job_title": "Job title",
+                "job_description": "Job description",
+                "contract_type": "full_time",
+                "requesting_department": "service",
+            })
+
+        self.assertEqual(response.status_code, 200)
+        planning_request = models.PlanningRequest.objects.all().first()
+        self.assertEqual(planning_request.recruitment_requests.all().count(), 1)
