@@ -42,6 +42,9 @@ Planning requests:
         <a href="{% url 'create_recruitment_request' planning_request.id %}">Manage recruitment requests</a>
         <a href="{% url 'create_financial_request' planning_request.id %}">Manage financial requests</a>
     {% endif %}
+    {% if "hrm" in groups and planning_request.state == "adm_approved" %}
+        <a href="{% url 'manage_recruitment_request' planning_request.id %}">Manage recruitment requests</a>
+    {% endif %}
 
 <hr />
 {% endfor %}

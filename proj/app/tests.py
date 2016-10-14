@@ -68,6 +68,13 @@ class TestView(TestCase):
         psm.save()
         psm_user.groups.add(psm)
         psm_user.save()
+
+        hrm_user = User.objects.create_user('hrm', 'hrm@hrm.com', 'eventplanner')
+        hrm = Group.objects.create()
+        hrm.name = 'hrm'
+        hrm.save()
+        hrm_user.groups.add(hrm)
+        hrm_user.save()        
         
         models.PlanningRequest.objects.create(**planning_request_data)
         models.PlanningRequest.objects.create(
@@ -194,3 +201,24 @@ class TestView(TestCase):
         self.assertEqual(response.status_code, 200)
         planning_request = models.PlanningRequest.objects.all().first()
         self.assertEqual(planning_request.financial_requests.all().count(), 1)
+
+
+    def test_manage_recruitment_request(self):
+        planning_request = models.PlanningRequest.objects.all().first()
+        recruitment_request = models.RecruitmentRequest(**{"years_of_experience": 3,
+                                   "job_title": "Job title",
+                                   "job_description": "Job description",
+                                   "contract_type": "full_time",
+                                   "requesting_department": "service"})
+        recruitment_request.planning_request = planning_request
+        recruitment_request.save()
+        self.client.login(username='hrm', password='eventplanner')
+        response = self.client.get(
+            '/recruitment-request/manage/%s?recruitment_request_id=%s&action=hired' %
+            (planning_request.id, recruitment_request.id))
+
+        self.assertEqual(response.status_code, 200)
+        planning_request = models.PlanningRequest.objects.all().first()
+        recruitment_request = planning_request.recruitment_requests.all().first()
+
+        self.assertEqual(recruitment_request.state, "hired")

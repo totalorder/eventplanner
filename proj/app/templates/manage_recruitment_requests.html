@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block body %}
+<a href="{% url 'planning_request' %}">Planning requests</a>
+{% if saved %}The recruitment request has been saved {% endif %}
+{% for attr, value in planning_request.dict %}
+<div>{{ attr }}: {{ value|default_if_none:"-" }}</div>
+{% endfor %}
+<hr/>
+{% for recruitment_request in planning_request.recruitment_requests_dicts %}
+{% for attr, value in recruitment_request.dict %}
+<div>{{ attr }}: {{ value|default_if_none:"-" }}</div>
+{% endfor %}
+{% if recruitment_request.state == "new" %}
+    <a href="{% url 'manage_recruitment_request' planning_request.id %}?recruitment_request_id={{ recruitment_request.id }}&action=hired">Hired</a>
+    <a href="{% url 'manage_recruitment_request' planning_request.id %}?recruitment_request_id={{ recruitment_request.id }}&action=deny">Deny</a>
+{% endif %}
+<hr/>
+{% endfor %}
+
+{% endblock %}

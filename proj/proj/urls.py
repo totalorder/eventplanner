@@ -25,6 +25,7 @@ urlpatterns = [
     url(r'^planning-request/', views.planning_request, name='planning_request'),
     url(r'^task/create/(?P<request_id>[0-9]+)', views.create_task, name='create_task'),
     url(r'^recruitment-request/create/(?P<request_id>[0-9]+)', views.create_recruitment_request, name='create_recruitment_request'),
+    url(r'^recruitment-request/manage/(?P<request_id>[0-9]+)', views.manage_recruitment_request, name='manage_recruitment_request'),
     url(r'^financial-request/create/(?P<request_id>[0-9]+)', views.create_financial_request, name='create_financial_request'),
     url(r'^login/', views.login, name='login'),
     url(r'^logout/', views.logout, name='logout'),

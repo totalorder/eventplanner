@@ -69,7 +69,12 @@ class RecruitmentRequest(models.Model):
     planning_request = models.ForeignKey(PlanningRequest,
                                          related_name='recruitment_requests')
 
-    completed = models.BooleanField(default=False)
+    state = models.CharField(
+        max_length=15, choices=(
+            ("new", "New"),
+            ("approved", "Approved"),
+            ("denied", "Denied")),
+        default="new")
     years_of_experience = models.IntegerField()
     job_title = models.CharField(max_length=512)
     job_description = models.TextField()
@@ -90,7 +95,7 @@ class RecruitmentRequest(models.Model):
 class RecruitmentRequestForm(ModelForm):
     class Meta:
         model = RecruitmentRequest
-        exclude = ["planning_request", "completed"]
+        exclude = ["planning_request", "state"]
 
 
 class FinancialRequest(models.Model):
@@ -102,7 +107,7 @@ class FinancialRequest(models.Model):
     state = models.CharField(
         max_length=15, choices=(
             ("new", "New"),
-            ("approved", "Approved"),
+            ("hired", "Hired"),
             ("denied", "Denied")),
         default="new")
 

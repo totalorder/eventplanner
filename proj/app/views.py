@@ -76,6 +76,7 @@ def planning_request(request):
            in_group(request.user, "scso") or
            in_group(request.user, "fm") or
            in_group(request.user, "adm") or
+           in_group(request.user, "hrm") or
            in_group(request.user, "psm")):
         return HttpResponse("You are not authorized to access this page", status=401)
     planning_request_form = models.PlanningRequestForm(request.POST)
@@ -201,4 +202,27 @@ def create_financial_request(request, request_id):
     return render(request, "financial_requests.html", {
         "planning_request": planning_request,
         "form": financial_request_form
+    })
+
+def manage_recruitment_request(request, request_id):
+    if not(in_group(request.user, "hrm")):
+        return HttpResponse("You are not authorized to access this page", status=401)
+
+    action = request.GET.get("action")
+    recruitment_request_id = request.GET.get("recruitment_request_id")
+    if action == "hired":
+        recruitment_request = models.RecruitmentRequest.objects.get(pk=recruitment_request_id)
+        recruitment_request.state = "hired"
+        recruitment_request.save()
+    elif action == "deny":
+        recruitment_request = models.RecruitmentRequest.objects.get(pk=recruitment_request_id)
+        recruitment_request.state = "denied"
+        recruitment_request.save()
+
+    planning_request = models.PlanningRequest.objects.get(
+        pk=request_id)
+    planning_request = model_to_dict(planning_request)
+    planning_request.recruitment_requests_dicts = models_to_dicts(planning_request.recruitment_requests.all())
+    return render(request, "manage_recruitment_requests.html", {
+        "planning_request": planning_request
     })
