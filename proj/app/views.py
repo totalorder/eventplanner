@@ -75,7 +75,8 @@ def planning_request(request):
     if not(in_group(request.user, "cso") or
            in_group(request.user, "scso") or
            in_group(request.user, "fm") or
-           in_group(request.user, "adm")):
+           in_group(request.user, "adm") or
+           in_group(request.user, "psm")):
         return HttpResponse("You are not authorized to access this page", status=401)
     planning_request_form = models.PlanningRequestForm(request.POST)
 
@@ -123,3 +124,31 @@ def approve(request):
     planning_request.state = new_state
     planning_request.save()
     return redirect("planning_request")
+
+
+def create_task(request, request_id):
+    planning_request = models.PlanningRequest.objects.get(
+        pk=request_id)
+
+    if not(in_group(request.user, "psm")):
+        return HttpResponse("You are not authorized to access this page", status=401)
+
+    task_form = models.TaskForm()
+    if request.method == "POST":
+        task_form = models.TaskForm(request.POST,
+                                    initial={"planning_request_id": request_id})
+        if task_form.is_valid():
+            task = models.Task(planning_request=planning_request,
+                               **task_form.cleaned_data)
+            task.save()
+            task_form = models.TaskForm()
+            # task_form.save()
+
+    planning_request = models.PlanningRequest.objects.get(
+        pk=request_id)
+    planning_request = model_to_dict(planning_request)
+    planning_request.tasks_dicts = models_to_dicts(planning_request.tasks.all())
+    return render(request, "tasks.html", {
+        "planning_request": planning_request,
+        "form": task_form
+    })

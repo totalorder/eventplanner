@@ -62,6 +62,13 @@ class TestView(TestCase):
         adm_user.groups.add(adm)
         adm_user.save()
 
+        psm_user = User.objects.create_user('psm', 'psm@psm.com', 'eventplanner')
+        psm = Group.objects.create()
+        psm.name = 'psm'
+        psm.save()
+        psm_user.groups.add(psm)
+        psm_user.save()
+        
         models.PlanningRequest.objects.create(**planning_request_data)
         models.PlanningRequest.objects.create(
             **dict(state="cso_approved", **planning_request_data))
@@ -137,3 +144,19 @@ class TestView(TestCase):
         planning_request = models.PlanningRequest.objects.all().first()
         self.assertEqual(response.status_code, 302)
         self.assertEqual(planning_request.state, "adm_approved")
+
+    def test_create_task(self):
+        planning_request = models.PlanningRequest.objects.all().first()
+        self.assertEqual(planning_request.tasks.all().count(), 0)
+
+        self.client.login(username='psm', password='eventplanner')
+        response = self.client.post(
+            '/task/create/%s' % planning_request.id, {
+                "name": "Name",
+                "description": "Description",
+                "sub_team": "food",
+            })
+
+        self.assertEqual(response.status_code, 200)
+        planning_request = models.PlanningRequest.objects.all().first()
+        self.assertEqual(planning_request.tasks.all().count(), 1)

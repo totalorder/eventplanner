@@ -11,6 +11,8 @@ state_choices = (
     ("fm_commented", "FM Commented"),
     ("adm_approved", "ADM Approved"),
 )
+
+
 class PlanningRequest(models.Model):
     client_name = models.CharField(max_length=128)
     event_type = models.CharField(max_length=128)
@@ -34,3 +36,30 @@ class PlanningRequestForm(ModelForm):
 
     from_date = fields.DateField(widget=SelectDateWidget())
     to_date = fields.DateField(widget=SelectDateWidget())
+
+
+class Task(models.Model):
+    planning_request = models.ForeignKey(PlanningRequest,
+                                         related_name='tasks')
+    name = models.CharField(max_length=128)
+    description = models.TextField()
+    extra_needs = models.TextField(null=True)
+    sub_team = models.CharField(choices=(
+        ("video_photo", "Video and photography unit"),
+        ("audio", "Audio unit"),
+        ("graphics", "Graphics unit"),
+        ("decoration", "Decoration unit"),
+        ("network", "Networking unit"),
+        ("food", "Food unit"),
+        ("waiters", "Waiter staff"),
+    ), max_length=128)
+
+
+class TaskForm(ModelForm):
+    name = models.CharField(max_length=128)
+    description = models.TextField()
+    extra_needs = models.TextField()
+
+    class Meta:
+        model = Task
+        exclude = ["planning_request", "extra_needs"]

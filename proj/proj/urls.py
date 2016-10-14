@@ -23,6 +23,7 @@ urlpatterns = [
     url(r'^planning-request/edit/(?P<request_id>[0-9]+)', views.edit_planning_request, name='planning_request_edit'),
     url(r'^planning-request/approve', views.approve, name='approve'),
     url(r'^planning-request/', views.planning_request, name='planning_request'),
+    url(r'^task/create/(?P<request_id>[0-9]+)', views.create_task, name='create_task'),
     url(r'^login/', views.login, name='login'),
     url(r'^logout/', views.logout, name='logout'),
     url(r'^$', views.index, name='index'),
