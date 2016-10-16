@@ -56,7 +56,7 @@ New planning request
 <div class="planning-form">
     <form action="{% url 'planning_request' %}" method="POST">
         {{ form.as_p }}
-        <input type="submit">
+        <input type="submit" id="create_request_submit">
     </form>
 </div>
 {% endblock %}

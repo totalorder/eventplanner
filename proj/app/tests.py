@@ -1,8 +1,15 @@
 from copy import copy
 from datetime import datetime, timedelta
+import os
 from django.contrib.auth.models import User, Group
 from django.test import TestCase
 from app import models
+from django.test import LiveServerTestCase
+from django.contrib.staticfiles.testing import StaticLiveServerTestCase
+from selenium import webdriver
+from selenium.webdriver.common.keys import Keys
+import sys
+import time
 
 planning_request_data = dict(
     expected_no_attending=1,
@@ -249,3 +256,123 @@ class TestView(TestCase):
         self.assertEqual(response.status_code, 200)
         planning_request = models.PlanningRequest.objects.get(pk=planning_request.id)
         self.assertEquals(planning_request.food_descr, "korv")
+
+
+class AcceptanceTest(StaticLiveServerTestCase):
+    # http://chromedriver.storage.googleapis.com/index.html?path=2.24/
+    def setUp(self):
+        cso_user = User.objects.create_user('cso', 'cso@cso.com', 'eventplanner')
+        cso = Group.objects.create()
+        cso.name = 'cso'
+        cso.save()
+        cso_user.groups.add(cso)
+        cso_user.save()
+
+        fm_user = User.objects.create_user('fm', 'fm@fm.com', 'eventplanner')
+        fm = Group.objects.create()
+        fm.name = 'fm'
+        fm.save()
+        fm_user.groups.add(fm)
+        fm_user.save()
+
+        self._setup_selenium_path()
+
+        self.selenium = webdriver.Chrome()
+        super(AcceptanceTest, self).setUp()
+
+    def _setup_selenium_path(self):
+        if "seleniumdrivers" not in os.getenv("PATH"):
+            platform_folder = {"linux2": "linux",
+                               "win32": "windows",
+                               "darwin": "osx"}.get(sys.platform)
+            seleniumdrivers_path = os.path.normpath(os.path.join(
+                os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+                "..", "seleniumdrivers", platform_folder))
+            print "Adding seleniumdrivers to path on: %s" % seleniumdrivers_path
+
+            os.environ["PATH"] = os.getenv(
+                "PATH") + ":%s" % seleniumdrivers_path
+
+    def tearDown(self):
+        self.selenium.quit()
+        super(AcceptanceTest, self).tearDown()
+
+    def test_login(self):
+        self.selenium.get('%s/login/' % self.live_server_url)
+        username = self.selenium.find_element_by_name('username')
+        password = self.selenium.find_element_by_name('password')
+        submit = self.selenium.find_element_by_id('submit')
+
+        username.send_keys("cso")
+        password.send_keys("eventplanner")
+        submit.send_keys(Keys.RETURN)
+
+        self.assertTrue("Logged in as cso" in self.selenium.page_source)
+
+    def test_create_event_planning_request(self):
+        self._login_as("cso")
+        self.selenium.get('%s/planning-request/' % self.live_server_url)
+
+        event_type = self.selenium.find_element_by_id('id_event_type')
+        from_date_month = self.selenium.find_element_by_id('id_from_date_month')
+        from_date_day = self.selenium.find_element_by_id('id_from_date_day')
+        from_date_year = self.selenium.find_element_by_id('id_from_date_year')
+        to_date_month = self.selenium.find_element_by_id('id_to_date_month')
+        to_date_day = self.selenium.find_element_by_id('id_to_date_day')
+        to_date_year = self.selenium.find_element_by_id('id_to_date_year')
+        expected_no_attending = self.selenium.find_element_by_id('id_expected_no_attending')
+        decoration = self.selenium.find_element_by_id('id_decoration')
+        parties = self.selenium.find_element_by_id('id_parties')
+        drinks = self.selenium.find_element_by_id('id_drinks')
+        food = self.selenium.find_element_by_id('id_food')
+        media = self.selenium.find_element_by_id('id_media')
+        expected_budget = self.selenium.find_element_by_id('id_expected_budget')
+        create_request_submit = self.selenium.find_element_by_id('create_request_submit')
+
+        event_type.send_keys("Event type")
+        from_date_month.send_keys("10")
+        from_date_day.send_keys("16")
+        from_date_year.send_keys("2016")
+        to_date_month.send_keys("10")
+        to_date_day.send_keys("24")
+        to_date_year.send_keys("2016")
+        expected_no_attending.send_keys("100")
+        decoration.send_keys("checked")
+        parties.send_keys("checked")
+        drinks.send_keys("")
+        food.send_keys("checked")
+        media.send_keys("")
+        expected_budget.send_keys("50000")
+        create_request_submit.send_keys(Keys.ENTER)
+
+        self.assertTrue("event_type: Event type" in self.selenium.page_source)
+        self.assertTrue("expected_no_attending: 100" in self.selenium.page_source)
+        self.assertTrue("expected_budget: 50000" in self.selenium.page_source)
+
+    def test_write_budget_feedback(self):
+        planning_request = models.PlanningRequest.objects.create(
+            **dict(state="scso_approved", **planning_request_data))
+
+        self._login_as("fm")
+        self.selenium.get('%s/planning-request/write-feedback/%s' %
+                          (self.live_server_url, planning_request.id))
+
+        feedback = self.selenium.find_element_by_name('feedback')
+        submit_feedback = self.selenium.find_element_by_id('submit_feedback')
+
+        feedback.send_keys("It's way too expensive!")
+        submit_feedback.send_keys(Keys.ENTER)
+
+        self.assertTrue("budget_feedback: It's way too expensive!" in self.selenium.page_source)
+
+    def _login_as(self, login_name):
+        self.selenium.get('%s/login/' % self.live_server_url)
+        username = self.selenium.find_element_by_name('username')
+        password = self.selenium.find_element_by_name('password')
+        submit = self.selenium.find_element_by_id('submit')
+
+        username.send_keys(login_name)
+        password.send_keys("eventplanner")
+        submit.send_keys(Keys.RETURN)
+
+        self.assertTrue("Logged in as %s" % login_name in self.selenium.page_source)

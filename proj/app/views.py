@@ -106,6 +106,7 @@ def planning_request(request):
         planning_request_form = models.PlanningRequestForm(request.POST)
         if planning_request_form.is_valid():
             planning_request_form.save()
+            planning_request_form = models.PlanningRequestForm()
 
     planning_requests = models.PlanningRequest.objects.all()
     if "state" in request.GET:
