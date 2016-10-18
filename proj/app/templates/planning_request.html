@@ -8,17 +8,18 @@
     </select>
     <input type="submit" value="Filter">
 </form>
-Planning requests:
+<strong>Planning requests:</strong>
 {% for planning_request in planning_requests %}
-    <form action="{% url 'approve' %}" method="POST">
+    <form action="{% url 'approve' %}" method="POST" class="item">
         {% for attr, value in planning_request.dict %}
-            <div>{{ attr }}: {{ value|default_if_none:"-" }}</div>
+            <div class="attr"><span class="attr-name">{{ attr }}:</span> {{ value|default_if_none:"-" }}</div>
         {% endfor %}
-        <div>tasks: {{ planning_request.tasks.all.count }}</div>
-        <div>recruitment requests: {{ planning_request.recruitment_requests.all.count }}</div>
-        <div>financial requests: {{ planning_request.financial_requests.all.count }}</div>
+        <div class="attr"><span class="attr-name">tasks:</span> {{ planning_request.tasks.all.count }}</div>
+        <div class="attr"><span class="attr-name">recruitment requests:</span> {{ planning_request.recruitment_requests.all.count }}</div>
+        <div class="attr"><span class="attr-name">financial requests:</span> {{ planning_request.financial_requests.all.count }}</div>
+
+        <div class="attr"><span class="attr-name">state:</span> {{ planning_request.state }}</div>
         <input type="hidden" name="planning_request_id" value="{{ planning_request.id }}">
-        state: {{ planning_request.state }}
         {% if planning_request.state == "new" and "cso" in groups %}
             <input type="submit" value="Send to SCSO">
             <input type="hidden" name="new_state" value="cso_approved">
@@ -52,7 +53,7 @@ Planning requests:
 <hr />
 {% endfor %}
 
-New planning request
+<strong>New planning request</strong>
 <div class="planning-form">
     <form action="{% url 'planning_request' %}" method="POST">
         {{ form.as_p }}

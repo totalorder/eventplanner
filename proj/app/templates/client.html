@@ -1,9 +1,10 @@
 {% extends "base.html" %}
 {% block body %}
-Clients:
+<strong>Clients:</strong>
+
 {% for client in clients %}
     {% for attr, value in client.dict %}
-    <div>{{ attr }}: {{ value|default_if_none:"-" }}</div>
+<div class="attr"><span class="attr-name">{{ attr }}:</span> {{ value|default_if_none:"-" }}</div>
     {% endfor %}
 {% if "scso" in groups %}
     <a href="{% url 'client_edit' client.id %}">Edit</a>

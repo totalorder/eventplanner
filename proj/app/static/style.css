@@ -1,3 +1,41 @@
 .planning-form label {
     display: block;
 }
+
+.attr-name {
+    width: 200px;
+    display: inline-block;
+}
+
+.attr {
+    border-bottom-width: 1px;
+    border-bottom-color: #ababab;
+    border-bottom-style: solid;
+    width: 400px;
+}
+
+.item {
+    margin-top: 30px;
+}
+
+.header {
+    padding: 25px;
+    background-color: #ababab;
+    font-size: 200%;
+    margin-bottom: 20px;
+}
+
+.footer {
+    padding: 25px;
+    background-color: #ababab;
+    margin-bottom: 20px;
+}
+
+.content {
+    padding: 25px;
+}
+
+p {
+    margin-top: 0.3em;
+    margin-bottom: 0.3em;
+}

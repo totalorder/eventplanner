@@ -123,7 +123,9 @@ def planning_request(request):
 
 
 def model_to_dict(obj):
-    obj.dict = {(field.attname, getattr(obj, field.attname)) for field in obj._meta.fields}
+    obj.dict = sorted([(field.attname, getattr(obj, field.attname)) for field in obj._meta.fields],
+                      cmp=lambda x, y: -1 if x[0] == "id" else 1 if y[0] == "id" else cmp(x[0], y[0]))
+
     return obj
 
 
