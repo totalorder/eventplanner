@@ -29,7 +29,7 @@ The acceptance tests are run using [selenium](http://docs.seleniumhq.org/) which
 runs a browser and executes commands and verifies the results automatically.
 ```bash
 cd proj/
-./manage.py test
+python manage.py test
 ```
 Note: On windows you might see the error 
 `Exception happened during processing of request from ('127.0.0.1', 60808)` 
