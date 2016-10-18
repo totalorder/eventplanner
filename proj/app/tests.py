@@ -291,7 +291,7 @@ class AcceptanceTest(StaticLiveServerTestCase):
             print "Adding seleniumdrivers to path on: %s" % seleniumdrivers_path
 
             os.environ["PATH"] = os.getenv(
-                "PATH") + ":%s" % seleniumdrivers_path
+                "PATH") + "%s%s" % (os.pathsep, seleniumdrivers_path)
 
     def tearDown(self):
         self.selenium.quit()

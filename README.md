@@ -31,13 +31,18 @@ runs a browser and executes commands and verifies the results automatically.
 cd proj/
 ./manage.py test
 ```
+Note: On windows you might see the error 
+`Exception happened during processing of request from ('127.0.0.1', 60808)` 
+when running the tests. 
+This is not a problem, and as long as you see the output
+`Ran 17 tests in 27.435s OK` everything worked.  
 
 ## Running the server
-This starts a server on [http://localhost:5000/](http://localhost:5000/)
+This starts a server on [http://localhost:8000/](http://localhost:5000/)
 
 Login using any of usernames listed below, with the password `eventplanner`:
 
 `cso` `scso` `fm` `adm` `psm` `hrm` 
 ```bash
-./manage.py runserver
+python manage.py runserver
 ```
